@@ -1,0 +1,166 @@
+extends CharacterBody3D
+# Attach this script to your character's root node (CharacterBody3D).
+# Expected child nodes:
+#   AnimationPlayer  - with animations named "Walk", "Jump", "Push"
+#   Camera3D         - direct child, used as a free-floating 3rd person orbit camera
+# Expected Input Map actions:
+#   move_forward, move_backwards, strafe_left, strafe_right, jump, action
+
+@onready var anim_player: AnimationPlayer = $AnimationPlayer
+@onready var camera: Camera3D = $Camera3D
+
+# --- Movement ---
+@export var speed: float = 5.0
+@export var jump_velocity: float = 4.5
+@export var rotation_speed: float = 10.0  # how fast the character turns to face movement
+
+var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
+
+# --- Camera (free orbiting 3rd person) ---
+@export var mouse_sensitivity: float = 0.003
+@export var camera_distance: float = 6.0
+@export var camera_height: float = 2.0
+@export var min_pitch_deg: float = -60.0
+@export var max_pitch_deg: float = 70.0
+@export var zoom_step: float = 0.5
+@export var min_camera_distance: float = 2.0
+@export var max_camera_distance: float = 12.0
+
+var camera_yaw: float = 0.0
+var camera_pitch: float = deg_to_rad(20.0)
+
+# Track whether Jump is currently playing so movement anim doesn't interrupt it.
+var is_jumping: bool = false
+
+func _ready() -> void:
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+	# Make sure Walk loops. You can also set this in the Animation panel
+	# by setting the animation's Loop Mode to "Linear Loop" instead.
+	if anim_player.has_animation("Walk"):
+		anim_player.get_animation("Walk").loop_mode = Animation.LOOP_LINEAR
+
+	# Jump and Push should NOT loop — they play once.
+	if anim_player.has_animation("Jump"):
+		anim_player.get_animation("Jump").loop_mode = Animation.LOOP_NONE
+	if anim_player.has_animation("Push"):
+		anim_player.get_animation("Push").loop_mode = Animation.LOOP_NONE
+
+	anim_player.animation_finished.connect(_on_animation_finished)
+
+	# Browser tab-close/pointer-lock safety net and alt-tab cursor handling
+	# now live in browser_input_fixes.gd — add that script to a Node3D
+	# anywhere in the scene tree instead of handling it here.
+
+	# Position the camera correctly on the first frame instead of waiting a tick.
+	_update_camera()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	# Orbit the camera with mouse motion while the mouse is captured.
+	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		camera_yaw -= event.relative.x * mouse_sensitivity
+		camera_pitch -= event.relative.y * mouse_sensitivity
+		camera_pitch = clamp(camera_pitch, deg_to_rad(min_pitch_deg), deg_to_rad(max_pitch_deg))
+
+	# Let the player free the mouse with Esc, and re-capture on click.
+	if event.is_action_pressed("ui_cancel"):
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	elif event is InputEventMouseButton and event.pressed and Input.mouse_mode == Input.MOUSE_MODE_VISIBLE:
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+	# Mouse wheel zooms the camera in/out.
+	if event is InputEventMouseButton and event.pressed:
+		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
+			camera_distance = clamp(camera_distance - zoom_step, min_camera_distance, max_camera_distance)
+		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			camera_distance = clamp(camera_distance + zoom_step, min_camera_distance, max_camera_distance)
+
+
+func _physics_process(delta: float) -> void:
+	# --- Gravity ---
+	if not is_on_floor():
+		velocity.y -= gravity * delta
+
+	# --- Jump ---
+	if Input.is_action_just_pressed("jump") and is_on_floor():
+		velocity.y = jump_velocity
+		_play_once("Jump")
+
+	# --- Camera-relative movement input ---
+	# get_axis gives -1..1, positive = forward / right respectively.
+	var input_forward := Input.get_axis("move_backwards", "move_forward")
+	var input_strafe := Input.get_axis("move_left", "move_right")
+
+	var cam_basis := camera.global_transform.basis
+	var cam_forward := -cam_basis.z
+	cam_forward.y = 0.0
+	cam_forward = cam_forward.normalized()
+	var cam_right := cam_basis.x
+	cam_right.y = 0.0
+	cam_right = cam_right.normalized()
+
+	var move_dir := (cam_forward * input_forward + cam_right * input_strafe)
+
+	if move_dir.length() > 0.01:
+		move_dir = move_dir.normalized()
+		velocity.x = move_dir.x * speed
+		velocity.z = move_dir.z * speed
+
+		# Rotate the character to face the direction it's moving.
+		var target_yaw := atan2(move_dir.x, move_dir.z)
+		rotation.y = lerp_angle(rotation.y, target_yaw, delta * rotation_speed)
+	else:
+		velocity.x = move_toward(velocity.x, 0.0, speed)
+		velocity.z = move_toward(velocity.z, 0.0, speed)
+
+	move_and_slide()
+
+
+func _process(delta: float) -> void:
+	_update_camera()
+	_update_animation()
+
+
+func _update_camera() -> void:
+	# Orbit around a pivot above the character, independent of the
+	# character's own rotation, so turning the body doesn't spin the camera.
+	var pivot: Vector3 = global_position + Vector3.UP * camera_height
+	var offset := Vector3(0.0, 0.0, camera_distance)
+	offset = offset.rotated(Vector3.RIGHT, camera_pitch)
+	offset = offset.rotated(Vector3.UP, camera_yaw)
+	camera.global_position = pivot + offset
+	camera.look_at(pivot, Vector3.UP)
+
+
+func _update_animation() -> void:
+	# Jump takes priority — don't let movement/push animations override it.
+	if is_jumping:
+		return
+
+	if Input.is_action_pressed("action"):
+		_play_once("Push")
+		return
+
+	var is_moving := Input.is_action_pressed("move_forward") \
+		or Input.is_action_pressed("move_backwards") \
+		or Input.is_action_pressed("move_left") \
+		or Input.is_action_pressed("move_right")
+
+	if is_moving:
+		if anim_player.current_animation != "Walk" or not anim_player.is_playing():
+			anim_player.play("Walk")
+	else:
+		if anim_player.current_animation != "":
+			anim_player.stop()
+
+
+func _play_once(anim_name: String) -> void:
+	if anim_name == "Jump":
+		is_jumping = true
+	anim_player.play(anim_name)
+
+
+func _on_animation_finished(anim_name: StringName) -> void:
+	if anim_name == "Jump":
+		is_jumping = false

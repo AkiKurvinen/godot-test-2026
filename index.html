@@ -11,23 +11,81 @@
 
 <body>
     <main>
-        <h1>Godot test - web export</h1>
-        <h2>TPS</h2>
-        <a href="./tps/v7">Start</a>
-        <p>WASD - Move</p>
-        <p>Spacebar - Jump</p>
-        <p>Shift - Action</p>
-        <p>Esc - Unfocus</p>
-        <br><br>
-        <hr>
-        <h2>FPS</h2>
-        <a href="./fps/v2/">Start</a>
-        <p>WASD - Move</p>
-        <p>Spacebar - Jump</p>
-        <p>Esc - Unfocus</p>
-        <br><br>
-    </main>
+        <div>
+            <h1>Godot player controllers</h1>
+            <i>Godot v4.7.1</i>
+            <h2>TPS</h2>
+            <a href="./tps/v7" target="_blank">Test Now &#8599;</a>
+            <pre class="controls">
+WASD - Move
+Spacebar - Jump
+F - Action
+Esc - Unfocus
+Mouse wheel - Zoom
+</pre>
+            <a href="scripts/tps_controller.gd">tps_controller.gd</a>&emsp;
+            <a href="scripts/browser_input_fixes.gd">browser_input_fixes.gd</a>
 
+            <pre>
+3rd person player controller node tree
+
+TPSPlayerCharacter (CharacterBody3D) [tps_controller.gd]
+|__Character (Node3D)
+|__AnimationPlayer (AnimationPlayer)
+|__CollisionShape3D (CollisionShape3D)
+|__Camera3D (Camera3D)
+
+Node3D (Node3D) [browser_input_fixes.gd]
+</pre>
+
+            <pre class="inputmap">
+Input map:
+
+move_forward W
+move_backwards A
+move_left S
+move_right D
+jump Spacebar
+action F
+</pre>
+        </div>
+
+        <hr>
+
+        <div>
+            <h2>FPS</h2>
+            <a href="./fps/v2/" target="_blank">Test Now &#8599;</a>
+            <pre class="controls">
+WASD - Move
+Spacebar - Jump
+Esc - Unfocus
+</pre>
+   <a href="scripts/fps_controller.gd">fps_controller.gd</a>&emsp;
+            <a href="scripts/browser_input_fixes.gd">browser_input_fixes.gd</a>
+            <pre>
+1st person player controller node tree
+
+FPSPlayerCharacter (CharacterBody3D) [fps_controller.gd]
+|__CollisionShape3D (CollisionShape3D)
+|__Camera3D (Camera3D)
+
+Node3D (Node3D) [browser_input_fixes.gd]
+</pre>
+
+        </div>
+        <div>
+            <pre class="inputmap">
+Input map:
+
+move_forward W
+move_backwards A
+move_left S
+move_right D
+jump Spacebar
+</pre>
+        </div>
+    </main>
+    <footer>2026</footer>
 </body>
 
 </html>

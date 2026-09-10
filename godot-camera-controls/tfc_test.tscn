@@ -11,6 +11,9 @@ script = ExtResource("1_jpkex")
 
 [node name="BoxObject" parent="." unique_id=1159220450 instance=ExtResource("2_ppm52")]
 
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=774973523]
+transform = Transform3D(0.25881907, -0.6830127, 0.6830127, 0, 0.7071068, 0.7071068, -0.9659258, -0.18301274, 0.18301274, 2.2391477, 2.3970394, 0.29082942)
+
 [node name="Label" type="Label" parent="." unique_id=470230622]
 offset_left = 16.0
 offset_top = 16.0

@@ -1,5 +1,9 @@
 [gd_scene format=3 uid="uid://cbp4tln1xw3ge"]
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bpidm"]
+
 [node name="BoxObject" type="Node3D" unique_id=1159220450]
 
 [node name="CSGBox3D" type="CSGBox3D" parent="." unique_id=1711966120]
+use_collision = true
+material = SubResource("StandardMaterial3D_bpidm")

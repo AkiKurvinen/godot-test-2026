@@ -1,6 +1,7 @@
 extends CharacterBody3D
 
 @export var speed = 5.0
+@export var sprint_multiplier = 3.0
 @export var jump_velocity = 4.5
 @export var mouse_sensitivity = 0.003
 @export var keyboard_look_speed_deg = 120.0  # degrees/sec, for arrow-key look
@@ -18,7 +19,7 @@ var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 var _actions_down: Dictionary = {}
 
 const TRACKED_ACTIONS := [
-	"move_forward", "move_backwards", "move_left", "move_right",
+	"move_forward", "move_backwards", "move_left", "move_right", "move_fast",
 	"ui_left", "ui_right", "ui_up", "ui_down",
 ]
 
@@ -30,6 +31,7 @@ const DEFAULT_ACTION_KEYS := {
 	"move_left": KEY_A,
 	"move_right": KEY_D,
 	"jump": KEY_SPACE,
+	"move_fast": KEY_SHIFT,
 }
 
 
@@ -118,11 +120,15 @@ func _physics_process(delta):
 	input_dir = input_dir.normalized()
 	var direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 
+	var current_speed = speed
+	if _is_action_down("move_fast"):
+		current_speed *= sprint_multiplier
+
 	if direction:
-		velocity.x = direction.x * speed
-		velocity.z = direction.z * speed
+		velocity.x = direction.x * current_speed
+		velocity.z = direction.z * current_speed
 	else:
-		velocity.x = move_toward(velocity.x, 0, speed)
-		velocity.z = move_toward(velocity.z, 0, speed)
+		velocity.x = move_toward(velocity.x, 0, current_speed)
+		velocity.z = move_toward(velocity.z, 0, current_speed)
 
 	move_and_slide()

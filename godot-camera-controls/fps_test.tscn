@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://j3pyu4e4p58w"]
+
+[ext_resource type="PackedScene" uid="uid://bfh4d6rjo406c" path="res://1st_person_player.tscn" id="1_dvr4a"]
+[ext_resource type="PackedScene" uid="uid://cbp4tln1xw3ge" path="res://models/box_object.tscn" id="2_bpidm"]
+
+[node name="FpsTest" type="Node3D" unique_id=1828006839]
+
+[node name="1StPersonPlayer" parent="." unique_id=139226142 instance=ExtResource("1_dvr4a")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1524695, 2.51326)
+
+[node name="CSGBox3D" type="CSGBox3D" parent="." unique_id=2117904244]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.09674072, 0)
+use_collision = true
+size = Vector3(10, 0.2, 10)
+
+[node name="BoxObject" parent="." unique_id=1159220450 instance=ExtResource("2_bpidm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.084472656, 0.50323486, -3.4519043)
+
+[node name="BoxObject2" parent="." unique_id=1906156538 instance=ExtResource("2_bpidm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.22619629, 1.483551, -3.6129608)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1954357206]
+transform = Transform3D(1, 0, 0, 0, 0.49999997, 0.86602545, 0, -0.86602545, 0.49999997, 0, 6.5185547, 0)

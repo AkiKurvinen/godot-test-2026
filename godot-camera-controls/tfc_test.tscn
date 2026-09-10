@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://ccrcrgd02f655"]
+
+[ext_resource type="Script" uid="uid://kf06y0g2p2vo" path="res://scripts/tfc_controller.gd" id="1_jpkex"]
+[ext_resource type="PackedScene" uid="uid://cbp4tln1xw3ge" path="res://models/box_object.tscn" id="2_ppm52"]
+
+[node name="TfcTest" type="Node3D" unique_id=1457428118]
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1246284556]
+transform = Transform3D(1, 0, 0, 0, 0.8660254, 0.5, 0, -0.5, 0.8660254, 0, 0.8412206, 1.2772241)
+script = ExtResource("1_jpkex")
+
+[node name="BoxObject" parent="." unique_id=1159220450 instance=ExtResource("2_ppm52")]
+
+[node name="Label" type="Label" parent="." unique_id=470230622]
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 221.0
+offset_bottom = 195.0
+text = "\"move_forward\": KEY_W,
+	\"move_backwards\": KEY_S,
+	\"move_left\": KEY_A,
+	\"move_right\": KEY_D,
+	\"move_up\": KEY_SPACE,
+	\"move_down\": KEY_CTRL,
+	\"move_fast\": KEY_SHIFT,"

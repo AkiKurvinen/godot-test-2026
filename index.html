@@ -17,37 +17,37 @@
             <h2>TPS</h2>
             <a href="./tps/v7" target="_blank">Test Now &#8599;</a>
             <pre class="controls">
-WASD - Move
-Spacebar - Jump
-F - Action
-Esc - Unfocus
-Mouse wheel - Zoom
-</pre>
+                WASD - Move
+                Spacebar - Jump
+                F - Action
+                Esc - Unfocus
+                Mouse wheel - Zoom
+            </pre>
             <a href="scripts/tps_controller.gd">tps_controller.gd</a>&emsp;
             <a href="scripts/browser_input_fixes.gd">browser_input_fixes.gd</a>
 
             <pre>
-3rd person player controller node tree
+                3rd person player controller node tree
 
-TPSPlayerCharacter (CharacterBody3D) [tps_controller.gd]
-|__Character (Node3D)
-|__AnimationPlayer (AnimationPlayer)
-|__CollisionShape3D (CollisionShape3D)
-|__Camera3D (Camera3D)
+                TPSPlayerCharacter (CharacterBody3D) [tps_controller.gd]
+                |__Character (Node3D)
+                |__AnimationPlayer (AnimationPlayer)
+                |__CollisionShape3D (CollisionShape3D)
+                |__Camera3D (Camera3D)
 
-Node3D (Node3D) [browser_input_fixes.gd]
-</pre>
+                Node3D (Node3D) [browser_input_fixes.gd]
+            </pre>
 
             <pre class="inputmap">
-Input map:
+                Input map:
 
-move_forward W
-move_backwards A
-move_left S
-move_right D
-jump Spacebar
-action F
-</pre>
+                move_forward W
+                move_backwards A
+                move_left S
+                move_right D
+                jump Spacebar
+                action F
+            </pre>
         </div>
 
         <hr>
@@ -56,62 +56,77 @@ action F
             <h2>FPS</h2>
             <a href="./fps/v2/" target="_blank">Test Now &#8599;</a>
             <pre class="controls">
-WASD - Move
-Spacebar - Jump
-Esc - Unfocus
-</pre>
-   <a href="scripts/fps_controller.gd">fps_controller.gd</a>&emsp;
+                WASD - Move
+                Spacebar - Jump
+                Esc - Unfocus
+            </pre>
+            <a href="scripts/fps_controller.gd">fps_controller.gd</a>&emsp;
             <a href="scripts/browser_input_fixes.gd">browser_input_fixes.gd</a>
             <pre>
-1st person player controller node tree
+                1st person player controller node tree
 
-FPSPlayerCharacter (CharacterBody3D) [fps_controller.gd]
-|__CollisionShape3D (CollisionShape3D)
-|__Camera3D (Camera3D)
+                FPSPlayerCharacter (CharacterBody3D) [fps_controller.gd]
+                |__CollisionShape3D (CollisionShape3D)
+                |__Camera3D (Camera3D)
 
-Node3D (Node3D) [browser_input_fixes.gd]
-</pre>
+                Node3D (Node3D) [browser_input_fixes.gd]
+            </pre>
 
         </div>
         <div>
             <pre class="inputmap">
-Input map:
+                Input map:
 
-move_forward W
-move_backwards A
-move_left S
-move_right D
-jump Spacebar
-</pre>
+                move_forward W
+                move_backwards A
+                move_left S
+                move_right D
+                jump Spacebar
+            </pre>
         </div>
 
         <hr>
-<div>
-    <h2>TFC</h2>
-                <a href="./tfc/v2/" target="_blank">Test Now &#8599;</a>
+        <div>
+            <h2>TFC</h2>
+            <a href="./tfc/v2/" target="_blank">Test Now &#8599;</a>
             <pre class="controls">
-WASD - Move
-Spacebar - Move up
-Ctrl - Move down
-</pre>
-<a href="scripts/tfc_controller.gd">tfc_controller.gd</a>&emsp;
+                WASD - Move
+                Spacebar - Move up
+                Ctrl - Move down
+            </pre>
+            <a href="scripts/tfc_controller.gd">tfc_controller.gd</a>&emsp;
             <a href="scripts/browser_input_fixes.gd">browser_input_fixes.gd</a>
-           
+
             <pre>
-Free camera controller node tree
+                Free camera controller node tree
 
-Camera3D (Camera3D) [tfc_controller.gd]
+                Camera3D (Camera3D) [tfc_controller.gd]
 
-Node3D (Node3D) [browser_input_fixes.gd]
-</pre>
+                Node3D (Node3D) [browser_input_fixes.gd]
+            </pre>
             <pre class="inputmap">
-Input map:
---
-</pre>
-</div>
+                Input map:
+
+                move_forward W
+                move_backwards S
+                move_left A
+                move_right D
+                move_up Spacebar
+                move_down Ctrl
+                move_fast Shift
+            </pre>
+        </div>
 
     </main>
     <footer>2026</footer>
+    <script>
+        document.querySelectorAll('pre').forEach((pre) => {
+            pre.textContent = pre.textContent
+                .split('\n')
+                .map((line) => line.replace(/^\s+/, ''))
+                .join('\n');
+        });
+    </script>
 </body>
 
 </html>

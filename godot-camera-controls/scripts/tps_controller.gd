@@ -18,6 +18,7 @@ var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 # --- Camera (free orbiting 3rd person) ---
 @export var mouse_sensitivity: float = 0.003
+@export var keyboard_look_speed_deg: float = 120.0  # degrees/sec, for arrow-key look
 @export var camera_distance: float = 6.0
 @export var camera_height: float = 2.0
 @export var min_pitch_deg: float = -60.0
@@ -32,7 +33,44 @@ var camera_pitch: float = deg_to_rad(20.0)
 # Track whether Jump is currently playing so movement anim doesn't interrupt it.
 var is_jumping: bool = false
 
+# We track action states ourselves instead of trusting Input directly.
+# Reason: holding Ctrl and pressing W (Ctrl+W) is intercepted as a shortcut
+# by the OS/window manager on some platforms, which can eat the key-up
+# event for W. That leaves Input's internal state (and is_action_pressed)
+# thinking W is still held, so the character keeps walking forever.
+# Tracking our own dict + clearing it on focus loss avoids that.
+var _actions_down: Dictionary = {}
+
+const TRACKED_ACTIONS := [
+	"move_forward", "move_backwards", "move_left", "move_right", "action",
+	"ui_left", "ui_right", "ui_up", "ui_down",
+]
+
+# Used to auto-create any of these actions that are missing from the
+# project's Input Map, so the character still works out of the box.
+const DEFAULT_ACTION_KEYS := {
+	"move_forward": KEY_W,
+	"move_backwards": KEY_S,
+	"move_left": KEY_A,
+	"move_right": KEY_D,
+	"jump": KEY_SPACE,
+	"action": KEY_F,
+}
+
+
+func _ensure_default_action(action: String, keycode: Key) -> void:
+	if InputMap.has_action(action):
+		return
+	InputMap.add_action(action)
+	var key_event := InputEventKey.new()
+	key_event.physical_keycode = keycode
+	InputMap.action_add_event(action, key_event)
+
+
 func _ready() -> void:
+	for action in DEFAULT_ACTION_KEYS:
+		_ensure_default_action(action, DEFAULT_ACTION_KEYS[action])
+
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 	# Make sure Walk loops. You can also set this in the Animation panel
@@ -56,6 +94,14 @@ func _ready() -> void:
 	_update_camera()
 
 
+func _notification(what: int) -> void:
+	# If the window/app loses focus (e.g. Alt-Tab), any keys currently marked
+	# "down" may never get a matching key-up event. Force-clear them so
+	# movement stops.
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT or what == NOTIFICATION_WM_WINDOW_FOCUS_OUT:
+		_actions_down.clear()
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	# Orbit the camera with mouse motion while the mouse is captured.
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
@@ -63,9 +109,15 @@ func _unhandled_input(event: InputEvent) -> void:
 		camera_pitch -= event.relative.y * mouse_sensitivity
 		camera_pitch = clamp(camera_pitch, deg_to_rad(min_pitch_deg), deg_to_rad(max_pitch_deg))
 
+	for action in TRACKED_ACTIONS:
+		if InputMap.has_action(action) and event.is_action(action):
+			_actions_down[action] = event.is_pressed()
+
 	# Let the player free the mouse with Esc, and re-capture on click.
 	if event.is_action_pressed("ui_cancel"):
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		# Releasing focus/mouse is a common moment for stuck keys too.
+		_actions_down.clear()
 	elif event is InputEventMouseButton and event.pressed and Input.mouse_mode == Input.MOUSE_MODE_VISIBLE:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
@@ -75,6 +127,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			camera_distance = clamp(camera_distance - zoom_step, min_camera_distance, max_camera_distance)
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			camera_distance = clamp(camera_distance + zoom_step, min_camera_distance, max_camera_distance)
+
+
+func _is_action_down(action: String) -> bool:
+	return _actions_down.get(action, false)
 
 
 func _physics_process(delta: float) -> void:
@@ -88,9 +144,17 @@ func _physics_process(delta: float) -> void:
 		_play_once("Jump")
 
 	# --- Camera-relative movement input ---
-	# get_axis gives -1..1, positive = forward / right respectively.
-	var input_forward := Input.get_axis("move_backwards", "move_forward")
-	var input_strafe := Input.get_axis("move_left", "move_right")
+	# Positive = forward / right respectively.
+	var input_forward := 0.0
+	if _is_action_down("move_forward"):
+		input_forward += 1.0
+	if _is_action_down("move_backwards"):
+		input_forward -= 1.0
+	var input_strafe := 0.0
+	if _is_action_down("move_right"):
+		input_strafe += 1.0
+	if _is_action_down("move_left"):
+		input_strafe -= 1.0
 
 	var cam_basis := camera.global_transform.basis
 	var cam_forward := -cam_basis.z
@@ -118,6 +182,18 @@ func _physics_process(delta: float) -> void:
 
 
 func _process(delta: float) -> void:
+	# Arrow keys let the player look around without a mouse.
+	var look_step := deg_to_rad(keyboard_look_speed_deg) * delta
+	if _is_action_down("ui_left"):
+		camera_yaw += look_step
+	if _is_action_down("ui_right"):
+		camera_yaw -= look_step
+	if _is_action_down("ui_up"):
+		camera_pitch += look_step
+	if _is_action_down("ui_down"):
+		camera_pitch -= look_step
+	camera_pitch = clamp(camera_pitch, deg_to_rad(min_pitch_deg), deg_to_rad(max_pitch_deg))
+
 	_update_camera()
 	_update_animation()
 
@@ -138,14 +214,14 @@ func _update_animation() -> void:
 	if is_jumping:
 		return
 
-	if Input.is_action_pressed("action"):
+	if _is_action_down("action"):
 		_play_once("Push")
 		return
 
-	var is_moving := Input.is_action_pressed("move_forward") \
-		or Input.is_action_pressed("move_backwards") \
-		or Input.is_action_pressed("move_left") \
-		or Input.is_action_pressed("move_right")
+	var is_moving := _is_action_down("move_forward") \
+		or _is_action_down("move_backwards") \
+		or _is_action_down("move_left") \
+		or _is_action_down("move_right")
 
 	if is_moving:
 		if anim_player.current_animation != "Walk" or not anim_player.is_playing():

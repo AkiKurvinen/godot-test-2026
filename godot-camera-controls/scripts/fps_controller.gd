@@ -1,7 +1,7 @@
 extends CharacterBody3D
 
 @export var speed = 5.0
-@export var sprint_multiplier = 3.0
+@export var sprint_multiplier = 2.0
 @export var jump_velocity = 4.5
 @export var mouse_sensitivity = 0.003
 @export var keyboard_look_speed_deg = 120.0  # degrees/sec, for arrow-key look

@@ -11,6 +11,7 @@ extends CharacterBody3D
 
 # --- Movement ---
 @export var speed: float = 5.0
+@export var sprint_multiplier: float = 2.0
 @export var jump_velocity: float = 4.5
 @export var rotation_speed: float = 10.0  # how fast the character turns to face movement
 
@@ -28,7 +29,7 @@ var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 @export var max_camera_distance: float = 12.0
 
 var camera_yaw: float = 0.0
-var camera_pitch: float = deg_to_rad(20.0)
+var camera_pitch: float = deg_to_rad(2.0)
 
 # Track whether Jump is currently playing so movement anim doesn't interrupt it.
 var is_jumping: bool = false
@@ -43,6 +44,7 @@ var _actions_down: Dictionary = {}
 
 const TRACKED_ACTIONS := [
 	"move_forward", "move_backwards", "move_left", "move_right", "action",
+	"move_fast",
 	"ui_left", "ui_right", "ui_up", "ui_down",
 ]
 
@@ -55,6 +57,7 @@ const DEFAULT_ACTION_KEYS := {
 	"move_right": KEY_D,
 	"jump": KEY_SPACE,
 	"action": KEY_F,
+	"move_fast": KEY_SHIFT,
 }
 
 
@@ -77,6 +80,8 @@ func _ready() -> void:
 	# by setting the animation's Loop Mode to "Linear Loop" instead.
 	if anim_player.has_animation("Walk"):
 		anim_player.get_animation("Walk").loop_mode = Animation.LOOP_LINEAR
+	if anim_player.has_animation("Run"):
+		anim_player.get_animation("Run").loop_mode = Animation.LOOP_LINEAR
 
 	# Jump and Push should NOT loop — they play once.
 	if anim_player.has_animation("Jump"):
@@ -165,18 +170,21 @@ func _physics_process(delta: float) -> void:
 	cam_right = cam_right.normalized()
 
 	var move_dir := (cam_forward * input_forward + cam_right * input_strafe)
+	var current_speed := speed
+	if _is_action_down("move_fast"):
+		current_speed *= sprint_multiplier
 
 	if move_dir.length() > 0.01:
 		move_dir = move_dir.normalized()
-		velocity.x = move_dir.x * speed
-		velocity.z = move_dir.z * speed
+		velocity.x = move_dir.x * current_speed
+		velocity.z = move_dir.z * current_speed
 
 		# Rotate the character to face the direction it's moving.
 		var target_yaw := atan2(move_dir.x, move_dir.z)
 		rotation.y = lerp_angle(rotation.y, target_yaw, delta * rotation_speed)
 	else:
-		velocity.x = move_toward(velocity.x, 0.0, speed)
-		velocity.z = move_toward(velocity.z, 0.0, speed)
+		velocity.x = move_toward(velocity.x, 0.0, current_speed)
+		velocity.z = move_toward(velocity.z, 0.0, current_speed)
 
 	move_and_slide()
 
@@ -224,8 +232,10 @@ func _update_animation() -> void:
 		or _is_action_down("move_right")
 
 	if is_moving:
-		if anim_player.current_animation != "Walk" or not anim_player.is_playing():
-			anim_player.play("Walk")
+		var movement_animation := "Run" if _is_action_down("move_fast") \
+			and anim_player.has_animation("Run") else "Walk"
+		if anim_player.current_animation != movement_animation or not anim_player.is_playing():
+			anim_player.play(movement_animation)
 	else:
 		if anim_player.current_animation != "":
 			anim_player.stop()

@@ -11,7 +11,7 @@ extends Camera3D
 ##   Left click     -> re-capture mouse
 
 @export var move_speed: float = 8.0
-@export var sprint_multiplier: float = 3.0
+@export var sprint_multiplier: float = 2.0
 @export var mouse_sensitivity: float = 0.15   # degrees per pixel
 @export var keyboard_look_speed: float = 90.0 # degrees/sec, for arrow-key look
 @export var min_pitch: float = -89.0

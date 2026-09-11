@@ -11,28 +11,36 @@
 
 <body>
     <main>
-        <div>
+        <section>
             <h1>Godot player controllers</h1>
-            <i>Godot v4.7.1</i>
-            <h2>TPS</h2>
+            <i><a href="https://godotengine.org/download/windows/" target="_blank">Godot</a> v4.7.1</i>
+        </section>
+        <br><br>
+        <hr>
+        <details>
+            <summary>
+                <h2>TPS</h2>
+                <span>3rd person controller</span>
+            </summary>
 
-            <a href="./demos-export/all/v1" target="_blank">Test Now &#8599;</a>
-            &emsp;<b>Press '3' to enter 3rd person scene</b>
+            <a href="./web-export/v2" target="_blank">Test Now &#8599;</a>
+            &emsp;<b>In game press '3' to enter 3rd person scene</b>
             <pre class="controls">
                 WASD - Move
                 Spacebar - Jump
-                F - Action
-                Esc - Unfocus
                 Mouse wheel - Zoom
+                Shift - Sprint
+                Esc - Unfocus
+                (enable strafe for sideways movement)
             </pre>
-            <a href="scripts/tps_controller.gd">tps_controller.gd</a>&emsp;
-            <a href="scripts/browser_input_fixes.gd">browser_input_fixes.gd</a>
+            <a href="godot-project/scripts/tps_controller.gd">tps_controller.gd</a>&emsp;
+            <a href="godot-project/scripts/browser_input_fixes.gd">browser_input_fixes.gd</a>
 
             <pre>
-                3rd person player controller node tree
+                3rd person player controller node tree:
 
                 TPSPlayerCharacter (CharacterBody3D) [tps_controller.gd]
-                |__Character (Node3D)
+                |__Armature (Node3D)
                 |__AnimationPlayer (AnimationPlayer)
                 |__CollisionShape3D (CollisionShape3D)
                 |__Camera3D (Camera3D)
@@ -50,24 +58,29 @@
                 jump Spacebar
                 action F
             </pre>
-        </div>
 
+        </details>
         <hr>
+        <details>
+            <summary>
+                <h2>FPS</h2>
+                <span>1st person controller</span>
+            </summary>
 
-        <div>
-            <h2>FPS</h2>
+            <div>
 
-            <a href="./demos-export/all/v1" target="_blank">Test Now &#8599;</a>
-            &emsp;<b>Press '1' to enter 1st person scene</b>
-            <pre class="controls">
+                <a href="./web-export/v2" target="_blank">Test Now &#8599;</a>
+                &emsp;<b>In game press '1' to enter 1st person scene</b>
+                <pre class="controls">
                 WASD - Move
                 Spacebar - Jump
+                Shift - Run
                 Esc - Unfocus
             </pre>
-            <a href="scripts/fps_controller.gd">fps_controller.gd</a>&emsp;
-            <a href="scripts/browser_input_fixes.gd">browser_input_fixes.gd</a>
-            <pre>
-                1st person player controller node tree
+                <a href="godot-project/scripts/fps_controller.gd">fps_controller.gd</a>&emsp;
+                <a href="godot-project/scripts/browser_input_fixes.gd">browser_input_fixes.gd</a>
+                <pre>
+                1st person player controller node tree:
 
                 FPSPlayerCharacter (CharacterBody3D) [fps_controller.gd]
                 |__CollisionShape3D (CollisionShape3D)
@@ -76,9 +89,9 @@
                 Node3D (Node3D) [browser_input_fixes.gd]
             </pre>
 
-        </div>
-        <div>
-            <pre class="inputmap">
+            </div>
+            <div>
+                <pre class="inputmap">
                 Input map:
 
                 move_forward W
@@ -86,30 +99,38 @@
                 move_left S
                 move_right D
                 jump Spacebar
+                run Shift
             </pre>
-        </div>
-
+            </div>
+        </details>
         <hr>
-        <div>
-            <h2>TFC</h2>
-            <a href="./demos-export/all/v1" target="_blank">Test Now &#8599;</a>
-            &emsp;<b>Press '2' to enter free camera scene</b>
-            <pre class="controls">
+        <details>
+            <summary>
+                <h2>TFC</h2>
+                <span>Free camera controller</span>
+            </summary>
+
+            <div>
+
+                <a href="./web-export/v2" target="_blank">Test Now &#8599;</a>
+                &emsp;<b>In game press '2' to enter free camera scene</b>
+                <pre class="controls">
                 WASD - Move
                 Spacebar - Move up
                 Ctrl - Move down
+                Esc - Unfocus
             </pre>
-            <a href="scripts/tfc_controller.gd">tfc_controller.gd</a>
-            <a href="scripts/browser_input_fixes.gd">browser_input_fixes.gd</a>
+                <a href="godot-project/scripts/tfc_controller.gd">tfc_controller.gd</a>&emsp;
+                <a href="godot-project/scripts/browser_input_fixes.gd">browser_input_fixes.gd</a>
 
-            <pre>
-                Free camera controller node tree
+                <pre>
+                Free camera controller node tree:
 
                 Camera3D (Camera3D) [tfc_controller.gd]
 
                 Node3D (Node3D) [browser_input_fixes.gd]
             </pre>
-            <pre class="inputmap">
+                <pre class="inputmap">
                 Input map:
 
                 move_forward W
@@ -120,8 +141,8 @@
                 move_down Ctrl
                 move_fast Shift
             </pre>
-        </div>
-
+            </div>
+        </details>
     </main>
     <footer>2026</footer>
     <script>

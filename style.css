@@ -11,6 +11,39 @@ main {
     padding-bottom: 2em;
 }
 
+summary {
+    align-items: center;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    list-style: none;
+    padding-bottom: 1em;
+}
+
+summary h2 {
+    display: inline;
+    margin: 0;
+}
+summary h2 span:last-child{
+    font-size: 1em;
+    font-weight: normal;
+}
+summary::after {
+    border-bottom: 2px solid currentColor;
+    border-right: 2px solid currentColor;
+    content: "";
+    height: 0.5em;
+    transform: rotate(45deg);
+    transition: transform 150ms ease;
+    width: 0.5em;
+}
+summary:hover{
+    background-color: rgb(227, 227, 227);
+}
+details[open] summary::after {
+    transform: rotate(225deg);
+}
+
 pre {
     background-color: #333;
     color: white;
